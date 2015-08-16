@@ -1,0 +1,4 @@
+name = Entity Validation Report
+description = Provides a report of entities that do not pass validation.
+package = Reporting
+core = 7.x
