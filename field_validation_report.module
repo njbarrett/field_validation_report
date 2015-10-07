@@ -25,6 +25,22 @@ function field_validation_report_menu() {
   return $return;
 }
 
+/**
+ * Implements hook_permission().
+ */
+function field_validation_report_permission() {
+  return array(
+    'view field validation report' => array(
+      'title' => t('View the Field Validation Report'),
+      'description' => t('Allows the user to view the field validation report.'),
+    ),
+    'administer field validation report' => array(
+      'title' => t('Administer Field Validation Report'),
+      'description' => t('Allow the user to administer the configuration for field validation report.'),
+    ),
+  );
+}
+
 function _field_validation_report_validate_entity_type($entity_type) {
   if ($entity_type == 'comment') {
     return;
