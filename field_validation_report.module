@@ -22,6 +22,15 @@ function field_validation_report_menu() {
     'type' => MENU_NORMAL_ITEM,
   );
 
+  $return['admin/config/system/field-validation-report'] = array(
+    'title' => 'Field Validation Report',
+    'description' => 'Provides configuration options for Field Validation Report.',
+    'page callback' => 'field_validation_report_config',
+    'access arguments' => array('administer field validation report'),
+    'file' => 'field_validation_report.admin.inc',
+    'type' => MENU_NORMAL_ITEM,
+  );
+
   return $return;
 }
 
