@@ -1,0 +1,78 @@
+<?php
+
+/**
+ * @file
+ * Code for the Field Validation Report module.
+ */
+
+include_once 'field_validation_report.forms.inc';
+
+/**
+ * Implements hook_menu().
+ */
+function field_validation_report_menu() {
+  $return = array();
+
+  $return['admin/reports/field-validation-report'] = array(
+    'title' => 'Field Validation Report',
+    'description' => 'Provides a report of all entities that do not pass field validation.',
+    'page callback' => 'field_validation_report_page',
+    'access callback' => TRUE,
+    'file' => 'field_validation_report.pages.inc',
+    'type' => MENU_NORMAL_ITEM,
+  );
+
+  return $return;
+}
+
+function _field_validation_report_validate_entity_type($entity_type) {
+  if ($entity_type == 'comment') {
+    return;
+  }
+
+  $entity_type_info = entity_get_info($entity_type);
+
+  foreach ($entity_type_info['bundles'] as $bundle_name => $bundle) {
+    _field_validation_report_validate_bundle($entity_type, $bundle_name);
+  }
+}
+
+function _field_validation_report_validate_bundle($entity_type, $bundle_name) {
+  $query = new \EntityFieldQuery();
+  $query->entityCondition('entity_type', $entity_type)
+    ->entityCondition('bundle', $bundle_name);
+
+  $results = $query->execute();
+
+  if (!empty($results[$entity_type])) {
+    $entities = entity_load($entity_type, array_keys($results[$entity_type]));
+    foreach ($entities as $entity) {
+      _field_validation_report_validate_entity($entity_type, $entity);
+    }
+  }
+}
+
+function _field_validation_report_validate_entity($entity_type, $entity) {
+  $form_state = array(
+    'programmed' => TRUE,
+    'build_info' => array(
+      'args' => array(
+        0 => $entity_type,
+        1 => $entity,
+      ),
+    ));
+
+  $form = drupal_build_form('field_validation_report_pseudo_form', $form_state);
+  drupal_form_submit('field_validation_report_pseudo_form', $form_state);
+  $form_state['triggering_element']['#limit_validation_errors'] = FALSE;
+  drupal_validate_form($form['#id'], $form, $form_state);
+
+  // Report errors.
+  $errors = form_get_errors();
+  if (!empty($errors)) {
+    foreach ($errors as $error) {
+      print "Error with " . $entity->nid . "\n";
+      var_dump($error) . "\n";
+    }
+  }
+}
