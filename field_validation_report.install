@@ -1,0 +1,31 @@
+<?php
+
+/**
+ * @file
+ * Contains install and update related hooks.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function field_validation_report_install(&$sandbox) {
+  // Set some default variables.
+  foreach (entity_get_info() as $entity_type => $entity_info) {
+    $enabled = 0;
+    if (in_array($entity_type, array('node', 'taxonomy_term', 'user'))) {
+      $enabled = 1;
+    }
+    variable_set('field_validation_report_enable_' . $entity_type, $enabled);
+    foreach ($entity_info['bundles'] as $bundle_name => $bundle_info) {
+      variable_set('field_validation_report_enable_' . $entity_type . '__' . $bundle_name, $enabled);
+    }
+  }
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function field_validation_report_uninstall(&$sandbox) {
+  db_query("DELETE FROM variable WHERE name LIKE 'field_validation_report%'")
+    ->execute();
+}

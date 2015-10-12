@@ -6,7 +6,20 @@
  */
 
 function field_validation_report_page() {
-  _field_validation_report_validate_entity_type('node');
+  // Loop over configuration, if bundle is enabled then run the validations.
+  foreach (field_validation_report_entities_enabled() as $entity_type => $bundles) {
+    if (!$bundles) {
+      continue;
+    }
+
+    foreach ($bundles as $bundle_name => $bundle_enabled) {
+      if (!$bundle_enabled) {
+        continue;
+      }
+
+      _field_validation_report_validate_bundle($entity_type, $bundle_name);
+    }
+  }
 
 //  $form_state = array(
 //    'programmed' => TRUE,

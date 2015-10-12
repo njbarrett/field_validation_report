@@ -25,9 +25,9 @@ function field_validation_report_config() {
   );
 
   foreach (entity_get_info() as $entity_type => $entity_info) {
-    // Only show entities that are capable of using meta tags.
+    // Only show entities that are capable of using field validation report.
     if (field_validation_report_entity_type_is_suitable($entity_type, $entity_info)) {
-      $entity_enabled = field_validation_report_entity_supports_validation($entity_type);
+      $entity_enabled = field_validation_report_entities_enabled($entity_type);
       $form['entities']['field_validation_report_enable_' . $entity_type] = array(
         '#type' => 'checkbox',
         '#title' => t($entity_info['label']),
@@ -49,7 +49,7 @@ function field_validation_report_config() {
             $form['entities']['field_validation_report_enable_' . $entity_type . '__' . $bundle_name] = array(
               '#type' => 'checkbox',
               '#title' => t($bundle_info['label']),
-              '#default_value' => !$entity_enabled || field_validation_report_entity_supports_validation($entity_type, $bundle_name),
+              '#default_value' => !$entity_enabled || field_validation_report_entities_enabled($entity_type, $bundle_name),
               '#attributes' => array(
                 // Add some theming that'll indent this bundle.
                 'class' => array('field-validation-report-bundle-checkbox'),

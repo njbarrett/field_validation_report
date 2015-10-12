@@ -93,15 +93,25 @@ function field_validation_report_entity_type_is_suitable($entity_type, $entity_i
 }
 
 /**
- * Check whether the requested entity type (and bundle) support field validation report.
+ * Check whether the requested entity type (and bundle) is enabled.
  *
  * By default the entities are disabled, only certain entities will have been
  * enabled during installation. If an entity type is enabled it is assumed that
  * the entity bundles will also be enabled by default.
  *
+ * @param string $entity_type
+ *   The entity type.
+ * @param string $bundle
+ *   The bundle name.
+ *
+ * @return mixed
+ *   TRUE/FALSE if checking a single entity type/bundle is enabled.
+ *   Otherwise, a full array of entity types and bundles indicating
+ *   whether they are enabled.
+ *
  * @see field_validation_report_entity_type_is_suitable().
  */
-function field_validation_report_entity_supports_validation($entity_type = NULL, $bundle = NULL) {
+function field_validation_report_entities_enabled($entity_type = NULL, $bundle = NULL) {
   $entity_types = &drupal_static(__FUNCTION__);
 
   // Identify which entities & bundles are supported the first time the
