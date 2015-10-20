@@ -21,6 +21,33 @@ function field_validation_report_page() {
     }
   }
 
+  $header = array(
+    t('Entity'),
+    t('Entity Type'),
+    t('Bundle'),
+    t('Error'),
+  );
+
+  $errors = field_validation_report_get_errors();
+  $rows = array();
+  foreach ($errors as $error) {
+    $uri = entity_uri($error['entity_type'], $error['entity']);
+    $rows[] = array(
+      l(entity_label($error['entity_type'], $error['entity']),
+        url($uri['path'], $uri['options'])),
+      $error['entity_type'],
+      $error['bundle'],
+      $error['message'],
+    );
+  }
+
+  $output = theme('table', array(
+    'header' => $header,
+    'rows' => $rows,
+  ));
+
+  return $output;
+
 //  $form_state = array(
 //    'programmed' => TRUE,
 //    'build_info' => array(

@@ -163,9 +163,14 @@ function field_validation_report_entities_enabled($entity_type = NULL, $bundle =
     return $supported;
   }
 
-  // If nothing specific was requested, return the complete list of supported
-  // entities & bundles.
+  // If nothing specific was requested, return the complete list of
+  // entities & bundles indicating whether they are supported.
   return $entity_types;
+}
+
+function &field_validation_report_get_errors() {
+  $errors = &drupal_static(__FUNCTION__, array());
+  return $errors;
 }
 
 function _field_validation_report_validate_entity_type($entity_type) {
@@ -196,26 +201,36 @@ function _field_validation_report_validate_bundle($entity_type, $bundle_name) {
 }
 
 function _field_validation_report_validate_entity($entity_type, $entity) {
+  $errors = &field_validation_report_get_errors();
+
+  list($entity_id,, $bundle_name) = entity_extract_ids($entity_type, $entity);
+
   $form_state = array(
     'programmed' => TRUE,
     'build_info' => array(
       'args' => array(
         0 => $entity_type,
-        1 => $entity,
+        1 => &$entity,
       ),
+    ),
+    'triggering_element' => array(
+      '#parents' => array(),
+      //'#limit_validation_errors' => FALSE,
     ));
 
-  $form = drupal_build_form('field_validation_report_pseudo_form', $form_state);
+  drupal_build_form('field_validation_report_pseudo_form', $form_state);
   drupal_form_submit('field_validation_report_pseudo_form', $form_state);
-  $form_state['triggering_element']['#limit_validation_errors'] = FALSE;
-  drupal_validate_form($form['#id'], $form, $form_state);
 
   // Report errors.
-  $errors = form_get_errors();
-  if (!empty($errors)) {
-    foreach ($errors as $error) {
-      print "Error with " . $entity->nid . "\n";
-      var_dump($error) . "\n";
+  $form_errors = form_get_errors();
+  if (!empty($form_errors)) {
+    foreach ($form_errors as $form_error) {
+      $errors[] = array(
+        'entity_type' => $entity_type,
+        'bundle' => $bundle_name,
+        'entity' => $entity,
+        'message' => $form_error,
+      );
     }
   }
 }
