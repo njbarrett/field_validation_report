@@ -28,7 +28,7 @@ function field_validation_report_page() {
     t('Error'),
   );
 
-  $errors = field_validation_report_get_errors();
+  $errors = _field_validation_report_get_errors();
   $rows = array();
   foreach ($errors as $error) {
     $uri = entity_uri($error['entity_type'], $error['entity']);
@@ -47,17 +47,4 @@ function field_validation_report_page() {
   ));
 
   return $output;
-
-//  $form_state = array(
-//    'programmed' => TRUE,
-//    'build_info' => array(
-//      'args' => array(
-//        0 => 'node',
-//        1 => node_load(1),
-//      ),
-//    ));
-//
-//  $form = drupal_build_form('field_validation_report_pseudo_form', $form_state);
-//
-//  return $form;
 }

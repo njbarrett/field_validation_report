@@ -1,0 +1,49 @@
+<?php
+
+/**
+ * @file
+ * Unit tests for Field Validation Report module.
+ */
+
+class FieldValidationReportTestCase extends DrupalWebTestCase {
+
+  protected $privileged_user;
+
+  /**
+   * Return metadata about the test.
+   */
+  public static function get_info() {
+    return array(
+      'name'  => 'Field Validation Report',
+      'description' => 'Executes test suite for Field Validation Report module.',
+      'group' => 'Field Validation Report',
+    );
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setUp() {
+    // Enable any modules required for the test.
+    parent::setUp(array('field_validation_report'));
+    // Create and log in our privileged user.
+    $this->privileged_user = $this->drupalCreateUser(array(
+      'view field validation report',
+      'administer field validation report',
+    ));
+    $this->drupalLogin($this->privileged_user);
+  }
+
+  /**
+   * Tests creation of a Simpletest example node.
+   */
+  public function testSimpleTestExampleCreate() {
+    // Create node to edit.
+    $edit = array();
+    $edit['title'] = $this->randomName(8);
+    $edit["body[und][0][value]"] = $this->randomName(16);
+    $this->drupalPost('node/add/simpletest-example', $edit, t('Save'));
+    $this->assertText(t('Simpletest Example Node Type @title has been created.', array('@title' => $edit['title'])));
+  }
+
+}

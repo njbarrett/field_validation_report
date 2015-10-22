@@ -168,7 +168,7 @@ function field_validation_report_entities_enabled($entity_type = NULL, $bundle =
   return $entity_types;
 }
 
-function &field_validation_report_get_errors() {
+function &_field_validation_report_get_errors() {
   $errors = &drupal_static(__FUNCTION__, array());
   return $errors;
 }
@@ -201,7 +201,7 @@ function _field_validation_report_validate_bundle($entity_type, $bundle_name) {
 }
 
 function _field_validation_report_validate_entity($entity_type, $entity) {
-  $errors = &field_validation_report_get_errors();
+  $errors = &_field_validation_report_get_errors();
 
   list($entity_id,, $bundle_name) = entity_extract_ids($entity_type, $entity);
 
