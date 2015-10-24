@@ -12,7 +12,7 @@ class FieldValidationReportTestCase extends DrupalWebTestCase {
   /**
    * Return metadata about the test.
    */
-  public static function get_info() {
+  public static function getInfo() {
     return array(
       'name'  => 'Field Validation Report',
       'description' => 'Executes test suite for Field Validation Report module.',
@@ -30,20 +30,43 @@ class FieldValidationReportTestCase extends DrupalWebTestCase {
     $this->privileged_user = $this->drupalCreateUser(array(
       'view field validation report',
       'administer field validation report',
+      'bypass node access',
     ));
     $this->drupalLogin($this->privileged_user);
   }
 
   /**
-   * Tests creation of a Simpletest example node.
+   * Test required field functionality.
    */
-  public function testSimpleTestExampleCreate() {
-    // Create node to edit.
-    $edit = array();
-    $edit['title'] = $this->randomName(8);
-    $edit["body[und][0][value]"] = $this->randomName(16);
-    $this->drupalPost('node/add/simpletest-example', $edit, t('Save'));
-    $this->assertText(t('Simpletest Example Node Type @title has been created.', array('@title' => $edit['title'])));
+  public function testRequiredField() {
+    field_create_field(array(
+      'field_name' => 'field_my_required_field',
+      'type' => 'text',
+    ));
+
+    field_create_instance(array(
+      'field_name' => 'field_my_required_field',
+      'entity_type' => 'node',
+      'label' => 'My required field',
+      'bundle' => 'page',
+      'required' => TRUE,
+      'widget' => array(
+        'type' => 'textfield',
+      ),
+    ));
+
+    $langcode = LANGUAGE_NONE;
+    $node = $this->drupalCreateNode(array('type' => 'page', 'status' => NODE_PUBLISHED));
+    $this->drupalGet('admin/reports/field-validation-report');
+
+    $this->assertText('My required field field is required.');
+
+    $this->drupalPost('node/' . $node->nid . '/edit', array(
+      "field_my_required_field[$langcode][0][value]" => $this->randomString(),
+    ), t('Save'));
+    $this->drupalGet('admin/reports/field-validation-report');
+
+    $this->assertNoText('My required field field is required.');
   }
 
 }
