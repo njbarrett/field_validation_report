@@ -8,7 +8,7 @@
 /**
  * Implements hook_install().
  */
-function field_validation_report_install(&$sandbox) {
+function field_validation_report_install() {
   // Set some default variables.
   foreach (entity_get_info() as $entity_type => $entity_info) {
     $enabled = 0;
@@ -25,7 +25,7 @@ function field_validation_report_install(&$sandbox) {
 /**
  * Implements hook_uninstall().
  */
-function field_validation_report_uninstall(&$sandbox) {
+function field_validation_report_uninstall() {
   db_query("DELETE FROM variable WHERE name LIKE 'field_validation_report%'")
     ->execute();
 }
