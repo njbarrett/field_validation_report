@@ -1,0 +1,24 @@
+<?php
+
+/**
+ * @file
+ * A dummy module for testing field validation report.
+ */
+
+/**
+ * Implements hook_field_attach_validate().
+ */
+function field_validation_report_test_field_attach_validate($entity_type, $entity, &$errors) {
+  if (isset($entity->field_my_custom_field)) {
+    foreach ($entity->field_my_custom_field as $langcode => $items) {
+      foreach ($items as $delta => $item) {
+        if ($item['value'] == 'my bad value') {
+          $errors['field_my_custom_field'][$langcode][$delta][] = array(
+            'error' => 'field_validation_report_test',
+            'message' => t('value may not be "my bad value"'),
+          );
+        }
+      }
+    }
+  }
+}

@@ -3,4 +3,4 @@ description = Provides a report of entities that do not pass field validation.
 package = Fields
 core = 7.x
 
-files[] = field_validation_report.test
+files[] = tests/field_validation_report.test

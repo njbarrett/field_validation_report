@@ -1,0 +1,5 @@
+name = "Field Validation Report Test"
+description = "Support module for field validation report related testing."
+package = Testing
+core = 7.x
+hidden = TRUE

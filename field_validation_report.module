@@ -215,11 +215,11 @@ function _field_validation_report_validate_entity($entity_type, $entity) {
     ),
     'triggering_element' => array(
       '#parents' => array(),
-      //'#limit_validation_errors' => FALSE,
+      '#limit_validation_errors' => FALSE,
     ));
 
-  drupal_build_form('field_validation_report_pseudo_form', $form_state);
-  drupal_form_submit('field_validation_report_pseudo_form', $form_state);
+  $form = drupal_build_form('field_validation_report_pseudo_form', $form_state);
+  field_attach_form_validate($entity_type, $entity, $form, $form_state);
 
   // Report errors.
   $form_errors = form_get_errors();
