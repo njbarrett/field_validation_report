@@ -174,10 +174,6 @@ function &_field_validation_report_get_errors() {
 }
 
 function _field_validation_report_validate_entity_type($entity_type) {
-  if ($entity_type == 'comment') {
-    return;
-  }
-
   $entity_type_info = entity_get_info($entity_type);
 
   foreach ($entity_type_info['bundles'] as $bundle_name => $bundle) {
@@ -194,6 +190,10 @@ function _field_validation_report_validate_bundle($entity_type, $bundle_name) {
     $query->entityCondition('bundle', $bundle_name);
   }
 
+  if ($entity_type == 'comment') {
+    $query->addTag('comment_bundle_fix');
+  }
+
   $results = $query->execute();
 
   if (!empty($results[$entity_type])) {
@@ -207,7 +207,7 @@ function _field_validation_report_validate_bundle($entity_type, $bundle_name) {
 function _field_validation_report_validate_entity($entity_type, $entity) {
   $errors = &_field_validation_report_get_errors();
 
-  list($entity_id,, $bundle_name) = entity_extract_ids($entity_type, $entity);
+  list(,, $bundle_name) = entity_extract_ids($entity_type, $entity);
 
   $form_state = array(
     'programmed' => TRUE,
@@ -238,4 +238,14 @@ function _field_validation_report_validate_entity($entity_type, $entity) {
     }
     form_clear_error();
   }
+}
+
+/**
+ * Fix until https://www.drupal.org/node/2581225 is committed.
+ */
+function field_validation_report_query_comment_bundle_fix_alter(QueryAlterableInterface $query) {
+  $query->innerJoin('node', NULL, 'comment.nid = node.nid');
+  $conditions = &$query->conditions();
+  $conditions[0]['field'] = 'node.type';
+  $conditions[0]['value'] = str_replace('comment_node_', '', $conditions[0]['value']);
 }

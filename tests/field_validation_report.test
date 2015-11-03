@@ -233,7 +233,6 @@ class FieldValidationReportTestCase extends DrupalWebTestCase {
       ),
     ));
 
-    $langcode = LANGUAGE_NONE;
     $entity = entity_create('my_custom_entity', array(
       'title' => t('My new custom entity'),
     ));
@@ -248,5 +247,78 @@ class FieldValidationReportTestCase extends DrupalWebTestCase {
 
     $this->assertText('value may not be "my bad value"');
   }
+
+  /**
+   * Test disabling an entity type.
+   */
+  function testDisableEntityType() {
+    variable_set('field_validation_report_enable_node', 0);
+
+    field_create_field(array(
+      'field_name' => 'field_my_required_field',
+      'type' => 'text',
+    ));
+
+    field_create_instance(array(
+      'field_name' => 'field_my_required_field',
+      'entity_type' => 'node',
+      'label' => 'My required field',
+      'bundle' => 'page',
+      'required' => TRUE,
+      'widget' => array(
+        'type' => 'textfield',
+      ),
+    ));
+
+    $this->drupalCreateNode(array('type' => 'page', 'status' => NODE_PUBLISHED));
+    $this->drupalGet('admin/reports/field-validation-report');
+
+    $this->assertNoText('My required field field is required.');
+  }
+
+  /**
+   * Test disabling a bundle.
+   */
+  function testDisableBundle() {
+    variable_set('field_validation_report_enable_node__page', 0);
+
+    field_create_field(array(
+      'field_name' => 'field_my_required_field',
+      'type' => 'text',
+    ));
+
+    field_create_instance(array(
+      'field_name' => 'field_my_required_field',
+      'entity_type' => 'node',
+      'label' => 'My required field',
+      'bundle' => 'page',
+      'required' => TRUE,
+      'widget' => array(
+        'type' => 'textfield',
+      ),
+    ));
+
+    field_create_instance(array(
+      'field_name' => 'field_my_required_field',
+      'entity_type' => 'node',
+      'label' => 'My required field',
+      'bundle' => 'article',
+      'required' => TRUE,
+      'widget' => array(
+        'type' => 'textfield',
+      ),
+    ));
+
+    $this->drupalCreateNode(array('type' => 'page', 'status' => NODE_PUBLISHED));
+    $this->drupalGet('admin/reports/field-validation-report');
+
+    $this->assertNoText('My required field field is required.');
+
+    $this->drupalCreateNode(array('type' => 'article', 'status' => NODE_PUBLISHED));
+    $this->drupalGet('admin/reports/field-validation-report');
+
+    $this->assertText('My required field field is required.');
+  }
+
 
 }
