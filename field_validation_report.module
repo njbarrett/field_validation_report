@@ -235,7 +235,16 @@ function _field_validation_report_validate_entity($entity_type, $entity) {
         'entity' => $entity,
         'message' => $form_error,
       );
+
+      // Remove the error message created by this validation.
+      $messages = drupal_get_messages('error', FALSE);
+      foreach($messages['error'] as $key => $message) {
+        if ($message == $form_error) {
+          unset($_SESSION['messages']['error'][$key]);
+        }
+      }
     }
+    // Prevent duplicate error messages.
     form_clear_error();
   }
 }
