@@ -136,7 +136,7 @@ function field_validation_report_entities_enabled($entity_type = NULL, $bundle =
           foreach ($entity_info['bundles'] as $bundle_name => $bundle_info) {
             // Allow bundles to be disabled by assigning a variable
             // 'field_validation_report_enable_{$entity_type}__{$bundle}' the value FALSE, e.g.:
-            if (variable_get('field_validation_report_enable_' . $entity_name . '__' . $bundle_name, TRUE) == FALSE) {
+            if (count($entity_info['bundles']) > 1 && variable_get('field_validation_report_enable_' . $entity_name . '__' . $bundle_name, TRUE) == FALSE) {
               $entity_types[$entity_name][$bundle_name] = FALSE;
             }
             else {
@@ -186,9 +186,13 @@ function _field_validation_report_validate_entity_type($entity_type) {
 }
 
 function _field_validation_report_validate_bundle($entity_type, $bundle_name) {
+  $entity_type_info = entity_get_info($entity_type);
+
   $query = new \EntityFieldQuery();
-  $query->entityCondition('entity_type', $entity_type)
-    ->entityCondition('bundle', $bundle_name);
+  $query->entityCondition('entity_type', $entity_type);
+  if (count($entity_type_info['bundles']) > 1) {
+    $query->entityCondition('bundle', $bundle_name);
+  }
 
   $results = $query->execute();
 
@@ -232,5 +236,6 @@ function _field_validation_report_validate_entity($entity_type, $entity) {
         'message' => $form_error,
       );
     }
+    form_clear_error();
   }
 }

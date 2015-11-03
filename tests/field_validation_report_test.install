@@ -1,0 +1,32 @@
+<?php
+
+/**
+ * @file
+ * Schema, install, update, uninstall hooks for Field Validation Report Test.
+ */
+
+function field_validation_report_test_schema() {
+  $schema = array();
+
+  $schema['my_custom_entity'] = array(
+    'description' => 'A basic custom entity table',
+    'fields' => array(
+      'eid' => array(
+        'description' => 'The primary ID for a custom entity',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'title' => array(
+        'description' => 'The title of this custom entity',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+    ),
+    'primary key' => array('eid'),
+  );
+
+  return $schema;
+}

@@ -140,7 +140,7 @@ class FieldValidationReportTestCase extends DrupalWebTestCase {
   }
 
   /**
-   * Test custom field validation functionality on a node.
+   * Test custom field validation functionality on a taxonomy term.
    */
   function testTaxonomyCustomFieldValidation() {
     field_create_field(array(
@@ -166,6 +166,44 @@ class FieldValidationReportTestCase extends DrupalWebTestCase {
     );
     $term->field_my_custom_field[$langcode][0]['value'] = 'my bad value';
     taxonomy_term_save($term);
+
+    $this->drupalGet('admin/reports/field-validation-report');
+
+    $this->assertText('value may not be "my bad value"');
+  }
+
+  /**
+   * Test custom field validation functionality on a custom entity.
+   */
+  function testCustomEntityCustomFieldValidation() {
+    variable_set('field_validation_report_enable_my_custom_entity', 1);
+    variable_set('field_validation_report_enable_my_custom_entity__my_custom_entity', 1);
+
+    field_create_field(array(
+      'field_name' => 'field_my_custom_field',
+      'type' => 'text',
+    ));
+
+    field_create_instance(array(
+      'field_name' => 'field_my_custom_field',
+      'entity_type' => 'my_custom_entity',
+      'label' => 'My custom field',
+      'bundle' => 'my_custom_entity',
+      'widget' => array(
+        'type' => 'textfield',
+      ),
+    ));
+
+    $langcode = LANGUAGE_NONE;
+    $entity = entity_create('my_custom_entity', array(
+      'title' => t('My new custom entity'),
+    ));
+    $entity_w = entity_metadata_wrapper('my_custom_entity', $entity);
+    $entity_w->field_my_custom_field->set('my bad value');
+    $entity_w->save();
+
+    $this->drupalGet('admin/config/system/field-validation-report');
+    $this->assertText('My Custom Entity');
 
     $this->drupalGet('admin/reports/field-validation-report');
 

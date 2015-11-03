@@ -32,9 +32,15 @@ function field_validation_report_page() {
   $rows = array();
   foreach ($errors as $error) {
     $uri = entity_uri($error['entity_type'], $error['entity']);
+    if ($uri) {
+      $entity_label = l(entity_label($error['entity_type'], $error['entity']),
+        url($uri['path'], $uri['options']));
+    }
+    else {
+      $entity_label = entity_label($error['entity_type'], $error['entity']);
+    }
     $rows[] = array(
-      l(entity_label($error['entity_type'], $error['entity']),
-        url($uri['path'], $uri['options'])),
+      $entity_label,
       $error['entity_type'],
       $error['bundle'],
       $error['message'],
