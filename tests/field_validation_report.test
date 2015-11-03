@@ -71,7 +71,7 @@ class FieldValidationReportTestCase extends DrupalWebTestCase {
   }
 
   /**
-   * Test custom field validation functionality on a taxonomy term.
+   * Test required field validation functionality on a taxonomy term.
    */
   function testTaxonomyRequiredField() {
     field_create_field(array(
@@ -104,6 +104,46 @@ class FieldValidationReportTestCase extends DrupalWebTestCase {
     $this->drupalPost('taxonomy/term/' . $term->tid . '/edit', array(
       "field_my_required_field[$langcode][0][value]" => $this->randomString(),
     ), t('Save'));
+    $this->drupalGet('admin/reports/field-validation-report');
+
+    $this->assertNoText('My required field field is required.');
+  }
+
+  /**
+   * Test required field validation functionality on a custom entity.
+   */
+  function testCustomEntityRequiredField() {
+    variable_set('field_validation_report_enable_my_custom_entity', 1);
+
+    field_create_field(array(
+      'field_name' => 'field_my_required_field',
+      'type' => 'text',
+    ));
+
+    field_create_instance(array(
+      'field_name' => 'field_my_required_field',
+      'entity_type' => 'my_custom_entity',
+      'label' => 'My required field',
+      'bundle' => 'my_custom_entity',
+      'required' => TRUE,
+      'widget' => array(
+        'type' => 'textfield',
+      ),
+    ));
+
+    $entity = entity_create('my_custom_entity', array(
+      'title' => t('My new custom entity'),
+    ));
+    $entity_w = entity_metadata_wrapper('my_custom_entity', $entity);
+    $entity_w->save();
+
+    $this->drupalGet('admin/reports/field-validation-report');
+
+    $this->assertText('My required field field is required.');
+
+    $entity_w->field_my_required_field->set('some value');
+    $entity_w->save();
+
     $this->drupalGet('admin/reports/field-validation-report');
 
     $this->assertNoText('My required field field is required.');
@@ -177,7 +217,6 @@ class FieldValidationReportTestCase extends DrupalWebTestCase {
    */
   function testCustomEntityCustomFieldValidation() {
     variable_set('field_validation_report_enable_my_custom_entity', 1);
-    variable_set('field_validation_report_enable_my_custom_entity__my_custom_entity', 1);
 
     field_create_field(array(
       'field_name' => 'field_my_custom_field',
