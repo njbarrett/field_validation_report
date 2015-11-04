@@ -168,11 +168,27 @@ function field_validation_report_entities_enabled($entity_type = NULL, $bundle =
   return $entity_types;
 }
 
+/**
+ * Stores the current collected error messages in a static variable.
+ *
+ * @return array
+ *   An array of errors collected through the validations.
+ */
 function &_field_validation_report_get_errors() {
   $errors = &drupal_static(__FUNCTION__, array());
   return $errors;
 }
 
+/**
+ * Validates an entity type.
+ *
+ * Runs the validation functions for all entities of this type.
+ * To view the errors you will need to call
+ * &_field_validation_report_get_errors();
+ *
+ * @param string $entity_type
+ *   The machine name of the entity type, e.g `node`
+ */
 function _field_validation_report_validate_entity_type($entity_type) {
   $entity_type_info = entity_get_info($entity_type);
 
@@ -181,6 +197,19 @@ function _field_validation_report_validate_entity_type($entity_type) {
   }
 }
 
+/**
+ * Validates a bundle of an entity type.
+ *
+ * Runs the validation functions for the specified bundle
+ * of this entity type.
+ * To view the errors you will need to call
+ * &_field_validation_report_get_errors();
+ *
+ * @param string $entity_type
+ *   The machine name of the entity type, e.g `node`
+ * @param string $bundle_name
+ *   The machine name of the bundle, e.g `page`
+ */
 function _field_validation_report_validate_bundle($entity_type, $bundle_name) {
   $entity_type_info = entity_get_info($entity_type);
 
@@ -204,6 +233,18 @@ function _field_validation_report_validate_bundle($entity_type, $bundle_name) {
   }
 }
 
+/**
+ * Validates a particular entity.
+ *
+ * Runs the validation functions for a particular entity.
+ * To view the errors you will need to call
+ * &_field_validation_report_get_errors();
+ *
+ * @param string $entity_type
+ *   The machine name of the entity type, e.g `node`
+ * @param stdClass $entity
+ *   The entity object to validate.
+ */
 function _field_validation_report_validate_entity($entity_type, $entity) {
   $errors = &_field_validation_report_get_errors();
 
@@ -244,13 +285,20 @@ function _field_validation_report_validate_entity($entity_type, $entity) {
         }
       }
     }
+
     // Prevent duplicate error messages.
     form_clear_error();
   }
 }
 
 /**
+ * Implements hook_TAG_query_alter().
+ *
  * Fix until https://www.drupal.org/node/2581225 is committed.
+ * As bundles do not specify a bundle column in the comment schema,
+ * EntityFieldQuery throws a column not found error when attempting
+ * to filter comment entities by bundle. This hook modifies the query
+ * to correctly filter the comments by the bundle.
  */
 function field_validation_report_query_comment_bundle_fix_alter(QueryAlterableInterface $query) {
   $query->innerJoin('node', NULL, 'comment.nid = node.nid');
