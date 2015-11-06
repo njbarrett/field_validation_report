@@ -7,6 +7,9 @@
 
 class FieldValidationReportTestCase extends DrupalWebTestCase {
 
+  /**
+   * @var object A privileged user account.
+   */
   protected $privileged_user;
 
   /**

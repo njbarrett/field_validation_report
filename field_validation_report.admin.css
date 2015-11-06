@@ -1,3 +1,9 @@
 .field-validation-report-bundle-checkbox {
     margin-left: 2em;
 }
+.field-validation-report__bundle {
+    padding-left: 2em;
+}
+.field-validation-report__entity {
+    padding-left: 4em;
+}

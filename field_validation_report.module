@@ -169,10 +169,32 @@ function field_validation_report_entities_enabled($entity_type = NULL, $bundle =
 }
 
 /**
+ * Helper function to run all enabled validations.
+ */
+function field_validation_report_run_validations() {
+  // Loop over configuration, if bundle is enabled then run the validations.
+  foreach (field_validation_report_entities_enabled() as $entity_type => $bundles) {
+    if (!$bundles) {
+      continue;
+    }
+
+    foreach ($bundles as $bundle_name => $bundle_enabled) {
+      if (!$bundle_enabled) {
+        continue;
+      }
+
+      _field_validation_report_validate_bundle($entity_type, $bundle_name);
+    }
+  }
+}
+
+/**
  * Stores the current collected error messages in a static variable.
  *
  * @return array
- *   An array of errors collected through the validations.
+ *   An array of errors collected through the validations, keyed by
+ *   entity type, bundle name and entity id.
+ *   e.g $errors['node']['page'][1] = 'the error';
  */
 function &_field_validation_report_get_errors() {
   $errors = &drupal_static(__FUNCTION__, array());
@@ -184,7 +206,7 @@ function &_field_validation_report_get_errors() {
  *
  * Runs the validation functions for all entities of this type.
  * To view the errors you will need to call
- * &_field_validation_report_get_errors();
+ * _field_validation_report_get_errors();
  *
  * @param string $entity_type
  *   The machine name of the entity type, e.g `node`
@@ -203,7 +225,7 @@ function _field_validation_report_validate_entity_type($entity_type) {
  * Runs the validation functions for the specified bundle
  * of this entity type.
  * To view the errors you will need to call
- * &_field_validation_report_get_errors();
+ * _field_validation_report_get_errors();
  *
  * @param string $entity_type
  *   The machine name of the entity type, e.g `node`
@@ -238,7 +260,7 @@ function _field_validation_report_validate_bundle($entity_type, $bundle_name) {
  *
  * Runs the validation functions for a particular entity.
  * To view the errors you will need to call
- * &_field_validation_report_get_errors();
+ * _field_validation_report_get_errors();
  *
  * @param string $entity_type
  *   The machine name of the entity type, e.g `node`
@@ -248,7 +270,7 @@ function _field_validation_report_validate_bundle($entity_type, $bundle_name) {
 function _field_validation_report_validate_entity($entity_type, $entity) {
   $errors = &_field_validation_report_get_errors();
 
-  list(,, $bundle_name) = entity_extract_ids($entity_type, $entity);
+  list($entity_id, $revision_id, $bundle_name) = entity_extract_ids($entity_type, $entity);
 
   $form_state = array(
     'programmed' => TRUE,
@@ -269,13 +291,20 @@ function _field_validation_report_validate_entity($entity_type, $entity) {
   // Report errors.
   $form_errors = form_get_errors();
   if (!empty($form_errors)) {
+    // Setup errors array if not set.
+    if (!isset($errors[$entity_type])) {
+      $errors[$entity_type] = array();
+      $errors[$entity_type]['__count'] = 0;
+    }
+    if (!isset($errors[$entity_type][$bundle_name])) {
+      $errors[$entity_type][$bundle_name] = array();
+      $errors[$entity_type][$bundle_name]['__count'] = 0;
+    }
+
     foreach ($form_errors as $form_error) {
-      $errors[] = array(
-        'entity_type' => $entity_type,
-        'bundle' => $bundle_name,
-        'entity' => $entity,
-        'message' => $form_error,
-      );
+      $errors[$entity_type]['__count']++;
+      $errors[$entity_type][$bundle_name]['__count']++;
+      $errors[$entity_type][$bundle_name][$entity_id][] = $form_error;
 
       // Remove the error message created by this validation.
       $messages = drupal_get_messages('error', FALSE);
@@ -288,6 +317,11 @@ function _field_validation_report_validate_entity($entity_type, $entity) {
 
     // Prevent duplicate error messages.
     form_clear_error();
+
+    // Prevent blank error message.
+    if (empty($_SESSION['messages']['error'])) {
+      unset($_SESSION['messages']['error']);
+    }
   }
 }
 
