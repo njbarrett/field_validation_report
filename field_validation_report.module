@@ -292,6 +292,7 @@ function _field_validation_report_validate_entity($entity_type, $entity) {
   $form_errors = form_get_errors();
   if (!empty($form_errors)) {
     // Setup errors array if not set.
+    $errors['__count'] = 0;
     if (!isset($errors[$entity_type])) {
       $errors[$entity_type] = array();
       $errors[$entity_type]['__count'] = 0;
@@ -300,10 +301,16 @@ function _field_validation_report_validate_entity($entity_type, $entity) {
       $errors[$entity_type][$bundle_name] = array();
       $errors[$entity_type][$bundle_name]['__count'] = 0;
     }
+    if (!isset($errors[$entity_type][$bundle_name][$entity_id])) {
+      $errors[$entity_type][$bundle_name][$entity_id] = array();
+      $errors[$entity_type][$bundle_name][$entity_id]['__count'] = 0;
+    }
 
     foreach ($form_errors as $form_error) {
+      $errors['__count']++;
       $errors[$entity_type]['__count']++;
       $errors[$entity_type][$bundle_name]['__count']++;
+      $errors[$entity_type][$bundle_name][$entity_id]['__count']++;
       $errors[$entity_type][$bundle_name][$entity_id][] = $form_error;
 
       // Remove the error message created by this validation.

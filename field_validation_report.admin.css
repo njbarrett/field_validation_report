@@ -1,9 +1,31 @@
 .field-validation-report-bundle-checkbox {
     margin-left: 2em;
 }
-.field-validation-report__bundle {
+.field-validation-report__entity-type-label,
+.field-validation-report__bundle-label {
+    cursor: pointer;
+}
+.field-validation-report__entity-type-label:before,
+.field-validation-report__bundle-label:before {
+    content: '[+]';
+    padding-right: 0.5em;
+}
+.field-validation-report__entity-type-label.expanded:before,
+.field-validation-report__bundle-label.expanded:before {
+    content: '[-]';
+    padding-right: 0.5em;
+}
+.field-validation-report__bundle-label {
     padding-left: 2em;
 }
-.field-validation-report__entity {
+.field-validation-report__entity-label {
     padding-left: 4em;
+}
+.field-validation-report__bundle,
+.field-validation-report__entity {
+    display: none;
+}
+.field-validation-report__bundle.expanded,
+.field-validation-report__entity.expanded {
+    display: table-row;
 }
