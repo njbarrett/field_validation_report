@@ -172,6 +172,12 @@ function field_validation_report_entities_enabled($entity_type = NULL, $bundle =
  * Helper function to run all enabled validations.
  */
 function field_validation_report_run_validations() {
+  // Clear the cache.
+  $errors = cache_get('field_validation_report_errors');
+  if (!empty($errors->data)) {
+    cache_clear_all('field_validation_report_errors', 'cache');
+  }
+
   // Loop over configuration, if bundle is enabled then run the validations.
   foreach (field_validation_report_entities_enabled() as $entity_type => $bundles) {
     if (!$bundles) {
@@ -186,6 +192,9 @@ function field_validation_report_run_validations() {
       _field_validation_report_validate_bundle($entity_type, $bundle_name);
     }
   }
+
+  $errors = _field_validation_report_get_errors();
+  cache_set('field_validation_report_errors', $errors);
 }
 
 /**
@@ -197,6 +206,12 @@ function field_validation_report_run_validations() {
  *   e.g $errors['node']['page'][1] = 'the error';
  */
 function &_field_validation_report_get_errors() {
+  $errors = cache_get('field_validation_report_errors');
+
+  if ($errors) {
+    return $errors->data;
+  }
+
   $errors = &drupal_static(__FUNCTION__, array());
   return $errors;
 }
