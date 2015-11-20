@@ -52,7 +52,8 @@ function field_validation_report_page() {
           array(
             'data' => $entity_type_info['bundles'][$bundle_name]['label'],
             'class' => array(
-              'field-validation-report__bundle-label'
+              'field-validation-report__bundle-label',
+              'field-validation-report__bundle--' . drupal_html_class($bundle_name),
             ),
           ),
           array(
@@ -79,7 +80,7 @@ function field_validation_report_page() {
         $uri = entity_uri($entity_type, $entity);
         if ($uri) {
           $entity_label = l(entity_label($entity_type, $entity),
-            url($uri['path'], $uri['options']));
+            $uri['path'], $uri['options']);
         }
         else {
           $entity_label = entity_label($entity_type, $entity);
@@ -134,6 +135,9 @@ function field_validation_report_page() {
   $output = theme('table', array(
     'header' => $header,
     'rows' => $rows,
+    'attributes' => array(
+      'class' => array('field-validation-report'),
+    ),
   ));
 
   return $output;

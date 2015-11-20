@@ -305,22 +305,22 @@ function _field_validation_report_validate_entity($entity_type, $entity) {
 
   // Report errors.
   $form_errors = form_get_errors();
-  if (!empty($form_errors)) {
-    // Setup errors array if not set.
-    $errors['__count'] = 0;
-    if (!isset($errors[$entity_type])) {
-      $errors[$entity_type] = array();
-      $errors[$entity_type]['__count'] = 0;
-    }
-    if (!isset($errors[$entity_type][$bundle_name])) {
-      $errors[$entity_type][$bundle_name] = array();
-      $errors[$entity_type][$bundle_name]['__count'] = 0;
-    }
-    if (!isset($errors[$entity_type][$bundle_name][$entity_id])) {
-      $errors[$entity_type][$bundle_name][$entity_id] = array();
-      $errors[$entity_type][$bundle_name][$entity_id]['__count'] = 0;
-    }
+  // Setup errors array if not set.
+  $errors['__count'] = 0;
+  if (!isset($errors[$entity_type])) {
+    $errors[$entity_type] = array();
+    $errors[$entity_type]['__count'] = 0;
+  }
+  if (!isset($errors[$entity_type][$bundle_name])) {
+    $errors[$entity_type][$bundle_name] = array();
+    $errors[$entity_type][$bundle_name]['__count'] = 0;
+  }
+  if (!isset($errors[$entity_type][$bundle_name][$entity_id])) {
+    $errors[$entity_type][$bundle_name][$entity_id] = array();
+    $errors[$entity_type][$bundle_name][$entity_id]['__count'] = 0;
+  }
 
+  if (!empty($form_errors)) {
     foreach ($form_errors as $form_error) {
       $errors['__count']++;
       $errors[$entity_type]['__count']++;
@@ -330,20 +330,20 @@ function _field_validation_report_validate_entity($entity_type, $entity) {
 
       // Remove the error message created by this validation.
       $messages = drupal_get_messages('error', FALSE);
-      foreach($messages['error'] as $key => $message) {
+      foreach ($messages['error'] as $key => $message) {
         if ($message == $form_error) {
           unset($_SESSION['messages']['error'][$key]);
         }
       }
     }
+  }
 
-    // Prevent duplicate error messages.
-    form_clear_error();
+  // Prevent duplicate error messages.
+  form_clear_error();
 
-    // Prevent blank error message.
-    if (empty($_SESSION['messages']['error'])) {
-      unset($_SESSION['messages']['error']);
-    }
+  // Prevent blank error message.
+  if (empty($_SESSION['messages']['error'])) {
+    unset($_SESSION['messages']['error']);
   }
 }
 
